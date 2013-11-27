@@ -7,6 +7,8 @@ def main():
         problem1(int(sys.argv[2]), False)
     if sys.argv[1] == "Problem 2":
         problem2(int(sys.argv[2]))
+    if sys.argv[1] == "Problem 3":
+        problem3(int(sys.argv[2]))
     if sys.argv[1] == "test":
         sys.argv.remove("test")
         unittest.main()
@@ -36,6 +38,21 @@ def problem2(iterations):
 
     for winningSequence in sorted(sequenceWins.iterkeys(), key=lambda k: sequenceWins[k], reverse=True):
         print winningSequence + ': ' + str(sequenceWins[winningSequence])
+
+def problem3(iterations):
+    goodBets = 0
+    for i in range(iterations):
+        winnings = 1
+        for j in range(1000):
+            oneHundredFlipSequence = take(flipGenerator(), 100)
+            if oneHundredFlipSequence.count('H') == 50:
+                winnings += 19
+            else:
+                winnings -= 1
+        if winnings >= 1000:
+            goodBets += 1
+
+    print 'You made money ' + str(goodBets) + ' out of ' + str(iterations) + ' times'
 
 def duesStrategyChooser(chosenSequences, iterations):
     duesValues = {}
