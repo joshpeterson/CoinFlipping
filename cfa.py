@@ -5,6 +5,8 @@ import random
 def main():
     if sys.argv[1] == "Problem 1":
         problem1(int(sys.argv[2]), False)
+    if sys.argv[1] == "Problem 2":
+        problem2(int(sys.argv[2]))
     if sys.argv[1] == "test":
         sys.argv.remove("test")
         unittest.main()
@@ -20,6 +22,20 @@ def problem1(iterations, displayAllDuesValues):
             print chosenSequence + ': ' + str(sequenceMeans[chosenSequence])
         else:
             print chosenSequence + ': ' + str(sequenceMeans[chosenSequence]) + ' ' + ''.join(str(duesValues[chosenSequence]))
+
+def problem2(iterations):
+    sequenceWins = {}
+    for yourSequence in allHeadsTailsCombinations:
+        for opponentSequence in allHeadsTailsCombinations:
+            if yourSequence != opponentSequence:
+                wins = 0
+                for i in range(iterations):
+                    if flipTournament(yourSequence, opponentSequence) == yourSequence:
+                        wins += 1
+                sequenceWins[yourSequence] = float(wins)/iterations
+
+    for winningSequence in sorted(sequenceWins.iterkeys(), key=lambda k: sequenceWins[k], reverse=True):
+        print winningSequence + ': ' + str(sequenceWins[winningSequence])
 
 def duesStrategyChooser(chosenSequences, iterations):
     duesValues = {}
@@ -42,6 +58,21 @@ def calculateDuesWithFlipGenerator(chosenSequence, flips):
         if chosenSequence in ''.join(allFlips):
             break
     return len(allFlips)
+
+def flipTournament(yourSequence, opponentSequence):
+    return flipTournamentWithFlipGenerator(yourSequence, opponentSequence, flipGenerator())
+
+def flipTournamentWithFlipGenerator(yourSequence, opponentSequence, flips):
+    if yourSequence == opponentSequence:
+        raise ValueError('Sequences cannot have the same value: ' + yourSequence)
+    allFlips = []
+    while True:
+        allFlips.append(flips.next())
+        flipSequence = ''.join(allFlips)
+        if yourSequence in flipSequence:
+            return yourSequence
+        if opponentSequence in flipSequence:
+            return opponentSequence
 
 def flipCoin():
     return random.choice(['H', 'T'])
@@ -78,6 +109,14 @@ allHeadsTailsCombinations = [
     'THTHH', 'THTHT', 'THTTH', 'THTTT',
     'TTHHH', 'TTHHT', 'TTHTH', 'TTHTT',
     'TTTHH', 'TTTHT', 'TTTTH', 'TTTTT']
+
+class FlipTournamentTests(unittest.TestCase):
+    def test_SequenceWhichAppearsFirstIsReturned(self):
+        self.assertEqual(flipTournamentWithFlipGenerator('HTHTH', 'THTHTH', (i for i in ['H','T', 'H', 'T', 'H'])), 'HTHTH')
+    def test_SequenceWhichAppearsFirstButNotAtStartIsReturned(self):
+        self.assertEqual(flipTournamentWithFlipGenerator('HTHTH', 'TTTHH', (i for i in ['H','T', 'T', 'T', 'H', 'H'])), 'TTTHH')
+    def test_RaisesAnExceptionWhenSequencesAreTheSame(self):
+        self.assertRaises(ValueError, flipTournamentWithFlipGenerator, 'HTHTH', 'HTHTH', (i for i in ['H','T', 'T', 'T', 'H']))
 
 class DuesStrategyChooserTests(unittest.TestCase):
     def test_ReturnsDictionaryWithInputSequenceAsAKey(self):
