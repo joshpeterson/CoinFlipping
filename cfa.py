@@ -1,17 +1,19 @@
 import unittest
 import sys
 import random
+import argparse
 
 def main():
-    if sys.argv[1] == "Problem 1":
-        problem1(int(sys.argv[2]), False)
-    if sys.argv[1] == "Problem 2":
-        problem2(int(sys.argv[2]))
-    if sys.argv[1] == "Problem 3":
-        problem3(int(sys.argv[2]))
-    if sys.argv[1] == "test":
-        sys.argv.remove("test")
+    args = parseArguments()
+    if args.test:
+        sys.argv.remove(sys.argv[1])
         unittest.main()
+    if args.problem == 1:
+        problem1(args.iterations, False)
+    if args.problem == 2:
+        problem2(args.iterations)
+    if args.problem == 3:
+        problem3(args.iterations)
 
 def problem1(iterations, displayAllDuesValues):
     sequenceMeans = {}
@@ -52,7 +54,7 @@ def problem3(iterations):
         if winnings >= 1000:
             goodBets += 1
 
-    print 'You made money ' + str(goodBets) + ' out of ' + str(iterations) + ' times'
+    print 'You made money ' + str(goodBets) + ' out of ' + str(iterations) + ' times.'
 
 def duesStrategyChooser(chosenSequences, iterations):
     duesValues = {}
@@ -178,6 +180,13 @@ class MeanTests(unittest.TestCase):
         self.assertEqual(mean([]), 0)
     def test_CalculatesMeanOfList(self):
         self.assertEqual(mean([1, 2, 3, 4]), 2.5)
+
+def parseArguments():
+    parser = argparse.ArgumentParser(description = 'This is a utility which uses Monte Carlo simulations to solve the Coin Flippers of America puzzles from the Communications of the ACM magazine (November 2013 issue).')
+    parser.add_argument('-t', '--test', help='execute unit tests', action='store_true')
+    parser.add_argument('-p', '--problem', help='perform problem 1, 2, or 3', choices=[1, 2, 3], type=int)
+    parser.add_argument('-i', '--iterations', help='number of iterations to use', type=int)
+    return parser.parse_args()
 
 if __name__ == '__main__':
     main()
