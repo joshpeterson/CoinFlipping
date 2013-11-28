@@ -1,21 +1,39 @@
+#
+# This code can be used to solve the coin flipping problems proposed in the
+# November 2013 issue of Communications of the ACM.
+# http://cacm.acm.org/magazines/2013/11/169037-puzzled-coin-flipping/abstract
+#
 import unittest
 import sys
 import random
 import argparse
 
 def main():
+    """ Parse arguments and execute the action requested by the user. """
     args = parseArguments()
     if args.test:
         sys.argv.remove(sys.argv[1])
         unittest.main()
-    if args.problem == 1:
+    elif args.problem == 1:
         problem1(args.iterations, False)
-    if args.problem == 2:
+    elif args.problem == 2:
         problem2(args.iterations)
-    if args.problem == 3:
+    elif args.problem == 3:
         problem3(args.iterations)
+    else:
+        print 'Try using the -h option for usage details.'
 
 def problem1(iterations, displayAllDuesValues):
+    """ Execute the first problem.
+
+    Parameters
+    ----------
+    iterations : int
+        The number of iterations to use when running the simulation.
+    displayAllDuesValues : bool
+        True to output the value computed at each iteration, False to output only the average.
+
+    """
     sequenceMeans = {}
     duesValues = duesStrategyChooser(allHeadsTailsCombinations, iterations)
     for chosenSequence in sorted(duesValues.keys()):
@@ -28,6 +46,14 @@ def problem1(iterations, displayAllDuesValues):
             print chosenSequence + ': ' + str(sequenceMeans[chosenSequence]) + ' ' + ''.join(str(duesValues[chosenSequence]))
 
 def problem2(iterations):
+    """ Execute the second problem.
+
+    Parameters
+    ----------
+    iterations : int
+        The number of iterations to use when running the simulation.
+
+    """
     sequenceWins = {}
     for yourSequence in allHeadsTailsCombinations:
         for opponentSequence in allHeadsTailsCombinations:
@@ -42,6 +68,14 @@ def problem2(iterations):
         print winningSequence + ': ' + str(sequenceWins[winningSequence])
 
 def problem3(iterations):
+    """ Execute the third problem.
+
+    Parameters
+    ----------
+    iterations : int
+        The number of iterations to use when running the simulation.
+
+    """
     goodBets = 0
     for i in range(iterations):
         winnings = 1
@@ -57,6 +91,17 @@ def problem3(iterations):
     print 'You made money ' + str(goodBets) + ' out of ' + str(iterations) + ' times.'
 
 def duesStrategyChooser(chosenSequences, iterations):
+    """ Return a dictionary mapping each possible head/tail sequence to a list
+    containing the number of clips required to generate it at each iteration.
+
+    Parameters
+    ----------
+    chosenSequences : list of string
+       A list of head/tail sequences to test. 
+    iterations : int
+        The number of iterations to use when running the simulation.
+
+    """
     duesValues = {}
     for chosenSequence in chosenSequences:
         duesValues[chosenSequence] = take(duesGenerator(chosenSequence), iterations)
@@ -64,13 +109,43 @@ def duesStrategyChooser(chosenSequences, iterations):
     return duesValues
 
 def duesGenerator(chosenSequence):
+    """ Return a generator to calculate the number of flips required
+    to obtain the given head/tail sequence. Each time it is called,
+    a new set of flips will be used.
+
+    Parameters
+    ----------
+    chosensequence : string
+        The head/tail sequence to test.
+
+    """
     while True:
         yield calculateDues(chosenSequence)
 
 def calculateDues(chosenSequence):
+    """ Return the number of flips required to obtain the given head/tail
+    sequence.
+
+    Parameters
+    ----------
+    chosensequence : string
+        The head/tail sequence to test.
+
+    """
     return calculateDuesWithFlipGenerator(chosenSequence, flipGenerator())
 
 def calculateDuesWithFlipGenerator(chosenSequence, flips):
+    """ Return the number of flips required to obtain the given head/tail
+    sequence. Use the given generator to determine the series of flips.
+
+    Parameters
+    ----------
+    chosensequence : string
+        The head/tail sequence to test.
+    flips : generator
+        A generator which provides a series of head/tail flips.
+
+    """
     allFlips = []
     while True:
         allFlips.append(flips.next())
@@ -79,9 +154,33 @@ def calculateDuesWithFlipGenerator(chosenSequence, flips):
     return len(allFlips)
 
 def flipTournament(yourSequence, opponentSequence):
+    """ Return the one of the two input head/tail sequences that occurs first
+    in a series of flips.
+
+    Parameters
+    ----------
+    yourSequence : string
+        One head/tail sequence to test.
+    opponentSequence : string
+        Another head/tail sequence to test.
+
+    """
     return flipTournamentWithFlipGenerator(yourSequence, opponentSequence, flipGenerator())
 
 def flipTournamentWithFlipGenerator(yourSequence, opponentSequence, flips):
+    """ Return the one of the two input head/tail sequences that occurs first
+    in a series of flips. Use the given generator to determine the series of flips.
+
+    Parameters
+    ----------
+    yourSequence : string
+        One head/tail sequence to test.
+    opponentSequence : string
+        Another head/tail sequence to test.
+    flips : generator
+        A generator which provides a series of head/tail flips.
+
+    """
     if yourSequence == opponentSequence:
         raise ValueError('Sequences cannot have the same value: ' + yourSequence)
     allFlips = []
@@ -94,16 +193,25 @@ def flipTournamentWithFlipGenerator(yourSequence, opponentSequence, flips):
             return opponentSequence
 
 def flipCoin():
+    """ Return a random 'H' or 'T' string. """
     return random.choice(['H', 'T'])
 
 def flipGenerator():
+    """ Return a generator for a random head/tail sequence. """
     while True:
         yield flipCoin()
 
-def generateRandomHeadTailSequence(size):
-    return ''.join(take(flipGenerator(), size))
-
 def take(generator, n):
+    """ Return a list of values from a generator.
+
+    Parameters
+    ----------
+    generator : generator
+        A generator to iterate.
+    n : int
+        The number of values to return.
+
+    """
     values = []
     i = 0;
     for value in generator:
@@ -115,6 +223,14 @@ def take(generator, n):
     return values
 
 def mean(values):
+    """ Compute the mean of a list fo values.
+
+    Parameters
+    ----------
+    values : list of int
+        A list of numbers to average.
+
+    """
     if not values:
         return 0
     return float(sum(values))/len(values)
@@ -182,6 +298,7 @@ class MeanTests(unittest.TestCase):
         self.assertEqual(mean([1, 2, 3, 4]), 2.5)
 
 def parseArguments():
+    """ Parse the command line arguments to this utility. """
     parser = argparse.ArgumentParser(description = 'This is a utility which uses Monte Carlo simulations to solve the Coin Flippers of America puzzles from the Communications of the ACM magazine (November 2013 issue).')
     parser.add_argument('-t', '--test', help='execute unit tests', action='store_true')
     parser.add_argument('-p', '--problem', help='perform problem 1, 2, or 3', choices=[1, 2, 3], type=int)
