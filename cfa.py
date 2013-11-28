@@ -39,6 +39,7 @@ def problem1(iterations, displayAllDuesValues):
     for chosenSequence in sorted(duesValues.keys()):
         sequenceMeans[chosenSequence] = mean(duesValues[chosenSequence])
 
+    print 'Average cost of dues for each sequence:'
     for chosenSequence in sorted(sequenceMeans.iterkeys(), key=lambda k: sequenceMeans[k]):
         if not displayAllDuesValues:
             print chosenSequence + ': ' + str(sequenceMeans[chosenSequence])
@@ -62,10 +63,11 @@ def problem2(iterations):
                 for i in range(iterations):
                     if flipTournament(yourSequence, opponentSequence) == yourSequence:
                         wins += 1
-                sequenceWins[yourSequence] = float(wins)/iterations
+                sequenceWins[yourSequence] = float(wins)/iterations * 100
 
+    print 'Chance of winning with each sequence:'
     for winningSequence in sorted(sequenceWins.iterkeys(), key=lambda k: sequenceWins[k], reverse=True):
-        print winningSequence + ': ' + str(sequenceWins[winningSequence])
+        print winningSequence + ': ' + str(sequenceWins[winningSequence]) + '%'
 
 def problem3(iterations):
     """ Execute the third problem.
