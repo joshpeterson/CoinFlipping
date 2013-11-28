@@ -247,11 +247,11 @@ allHeadsTailsCombinations = [
 
 class FlipTournamentTests(unittest.TestCase):
     def test_SequenceWhichAppearsFirstIsReturned(self):
-        self.assertEqual(flipTournamentWithFlipGenerator('HTHTH', 'THTHTH', (i for i in ['H','T', 'H', 'T', 'H'])), 'HTHTH')
+        self.assertEqual(flipTournamentWithFlipGenerator('HTHTH', 'THTHTH', mockFlipGenerator('HTHTH')), 'HTHTH')
     def test_SequenceWhichAppearsFirstButNotAtStartIsReturned(self):
-        self.assertEqual(flipTournamentWithFlipGenerator('HTHTH', 'TTTHH', (i for i in ['H','T', 'T', 'T', 'H', 'H'])), 'TTTHH')
+        self.assertEqual(flipTournamentWithFlipGenerator('HTHTH', 'TTTHH', mockFlipGenerator('HTTTHH')), 'TTTHH')
     def test_RaisesAnExceptionWhenSequencesAreTheSame(self):
-        self.assertRaises(ValueError, flipTournamentWithFlipGenerator, 'HTHTH', 'HTHTH', (i for i in ['H','T', 'T', 'T', 'H']))
+        self.assertRaises(ValueError, flipTournamentWithFlipGenerator, 'HTHTH', 'HTHTH', mockFlipGenerator('HTTTH'))
 
 class DuesStrategyChooserTests(unittest.TestCase):
     def test_ReturnsDictionaryWithInputSequenceAsAKey(self):
@@ -265,11 +265,11 @@ class DuesStrategyChooserTests(unittest.TestCase):
 
 class CalculateDuesTests(unittest.TestCase):
     def test_ReturnsFiveWhenAllMatch(self):
-        self.assertEqual(calculateDuesWithFlipGenerator('HHHHH', (i for i in ['H','H', 'H', 'H', 'H'])), 5)
+        self.assertEqual(calculateDuesWithFlipGenerator('HHHHH', mockFlipGenerator('HHHHH')), 5)
     def test_ReturnsSixWhenAllButFirstMatch(self):
-        self.assertEqual(calculateDuesWithFlipGenerator('HHHHH', (i for i in ['T', 'H','H', 'H', 'H', 'H'])), 6)
+        self.assertEqual(calculateDuesWithFlipGenerator('HHHHH', mockFlipGenerator('THHHHH')), 6)
     def test_ReturnsFiveWhenFirstFiveMatch(self):
-        self.assertEqual(calculateDuesWithFlipGenerator('HHHHH', (i for i in ['H','H', 'H', 'H', 'H', 'H'])), 5)
+        self.assertEqual(calculateDuesWithFlipGenerator('HHHHH', mockFlipGenerator('HHHHHH')), 5)
 
 class FlipGeneratorTests(unittest.TestCase):
     def test_ReturnsTenFlips(self):
@@ -296,6 +296,16 @@ class MeanTests(unittest.TestCase):
         self.assertEqual(mean([]), 0)
     def test_CalculatesMeanOfList(self):
         self.assertEqual(mean([1, 2, 3, 4]), 2.5)
+
+def mockFlipGenerator(sequence):
+    """ Return a generator that provides each character in a string, one at a time.
+    Parameters
+    ----------
+    sequence : string
+        The string to parse and provide input to the generator.
+    """
+    for character in sequence:
+       yield character
 
 def parseArguments():
     """ Parse the command line arguments to this utility. """
