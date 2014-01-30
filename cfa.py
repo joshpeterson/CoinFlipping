@@ -20,6 +20,8 @@ def main():
         problem2(args.iterations)
     elif args.problem == 3:
         problem3(args.iterations)
+    elif args.problem == 4:
+        problem2WithSharedKnowledge(args.iterations)
     else:
         print 'Try using the -h option for usage details.'
 
@@ -59,15 +61,42 @@ def problem2(iterations):
     for yourSequence in allHeadsTailsCombinations:
         for opponentSequence in allHeadsTailsCombinations:
             if yourSequence != opponentSequence:
-                wins = 0
-                for i in range(iterations):
-                    if flipTournament(yourSequence, opponentSequence) == yourSequence:
-                        wins += 1
+                wins = ComputeNumberOfWinsInFlipTournament(yourSequence, opponentSequenceHeads, iterations)
                 sequenceWins[yourSequence] = float(wins)/iterations * 100
 
     print 'Chance of winning with each sequence:'
     for winningSequence in sorted(sequenceWins.iterkeys(), key=lambda k: sequenceWins[k], reverse=True):
         print winningSequence + ': ' + str(sequenceWins[winningSequence]) + '%'
+
+def problem2WithSharedKnowledge(iterations):
+    """ Execute the second problem, assuming that your opponent knows your choice.
+
+    Parameters
+    ----------
+    iterations : int
+        The number of iterations to use when running the simulation.
+
+    """
+    sequenceHeadsWins = {}
+    sequenceTailsWins = {}
+    for yourSequence in allHeadsTailsCombinations:
+        opponentSequenceHeads = 'H' + yourSequence[0:4]
+        if yourSequence != opponentSequenceHeads:
+            headsWins = ComputeNumberOfWinsInFlipTournament(yourSequence, opponentSequenceHeads, iterations)
+            sequenceHeadsWins[yourSequence] = float(headsWins)/iterations * 100
+
+        opponentSequenceTails = 'T' + yourSequence[0:4]
+        if yourSequence != opponentSequenceTails:
+            tailsWins = ComputeNumberOfWinsInFlipTournament(yourSequence, opponentSequenceTails, iterations)
+            sequenceTailsWins[yourSequence] = float(tailsWins)/iterations * 100
+
+    print 'Chance of winning with each sequence when your opponent leads with H:'
+    for winningSequence in sorted(sequenceHeadsWins.iterkeys(), key=lambda k: sequenceHeadsWins[k], reverse=True):
+        print winningSequence + ': ' + str(sequenceHeadsWins[winningSequence]) + '%'
+
+    print 'Chance of winning with each sequence when your opponent leads with T:'
+    for winningSequence in sorted(sequenceTailsWins.iterkeys(), key=lambda k: sequenceTailsWins[k], reverse=True):
+        print winningSequence + ': ' + str(sequenceTailsWins[winningSequence]) + '%'
 
 def problem3(iterations):
     """ Execute the third problem.
@@ -91,6 +120,13 @@ def problem3(iterations):
             goodBets += 1
 
     print 'You made money ' + str(goodBets) + ' out of ' + str(iterations) + ' times.'
+
+def ComputeNumberOfWinsInFlipTournament(yourSequence, opponentSequence, iterations):
+    wins = 0
+    for i in range(iterations):
+        if flipTournament(yourSequence, opponentSequence) == yourSequence:
+            wins += 1
+    return wins
 
 def duesStrategyChooser(chosenSequences, iterations):
     """ Return a dictionary mapping each possible head/tail sequence to a list
@@ -313,7 +349,7 @@ def parseArguments():
     """ Parse the command line arguments to this utility. """
     parser = argparse.ArgumentParser(description = 'This is a utility which uses Monte Carlo simulations to solve the Coin Flippers of America puzzles from the Communications of the ACM magazine (November 2013 issue).')
     parser.add_argument('-t', '--test', help='execute unit tests', action='store_true')
-    parser.add_argument('-p', '--problem', help='perform problem 1, 2, or 3', choices=[1, 2, 3], type=int)
+    parser.add_argument('-p', '--problem', help='perform problem 1, 2, 3, or 4 (problem 2 with shared knowledge)', choices=[1, 2, 3, 4], type=int)
     parser.add_argument('-i', '--iterations', help='number of iterations to use', type=int)
     return parser.parse_args()
 
